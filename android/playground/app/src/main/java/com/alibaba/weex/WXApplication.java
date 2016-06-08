@@ -12,22 +12,24 @@ import com.taobao.weex.common.WXException;
 
 public class WXApplication extends Application {
 
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    WXSDKEngine.addCustomOptions("appName", "WXSample");
-    WXSDKEngine.addCustomOptions("appGroup", "WXApp");
-//    WXSDKEngine.addCustomOptions("infoCollect", "false");
-    WXSDKEngine.init(this,null,null,new ImageAdapter(),null);
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
-    try {
+        WXSDKEngine.addCustomOptions("appName", "WXSample");
+        WXSDKEngine.addCustomOptions("appGroup", "WXApp");
 
-      WXSDKEngine.registerComponent("wtRichText", WTRichText.class);
-      WXSDKEngine.registerModule("render", RenderModule.class);
-      WXSDKEngine.registerModule("event", WXEventModule.class);
+        // WXSDKEngine.addCustomOptions("infoCollect", "false");
+        WXSDKEngine.init(this, null, null, new ImageAdapter(), null);
 
-    } catch (WXException e) {
-      e.printStackTrace();
+        try {
+
+            WXSDKEngine.registerComponent("wtRichText", WTRichText.class);
+            WXSDKEngine.registerModule("render", RenderModule.class);
+            WXSDKEngine.registerModule("event", WXEventModule.class);
+
+        } catch (WXException e) {
+            e.printStackTrace();
+        }
     }
-  }
 }

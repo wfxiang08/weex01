@@ -1,5 +1,6 @@
 <template>
-  <div>
-    <text style="font-size:100px;">Hello World.</text>
-  </div>
+    <!-- 默认的界面 -->
+    <div style="padding:20px;">
+        <text style="font-size:40px;">Hello World. 测试数据</text>
+    </div>
 </template>
