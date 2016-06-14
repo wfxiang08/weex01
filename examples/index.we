@@ -3,6 +3,7 @@
 </template>
 
 <script>
+    // require('weex-components');
     require('./include/example-list.we');
     module.exports = {
         data: {
@@ -14,7 +15,7 @@
                 {name: 'animation', title: 'Animation'},
 
                 // component
-                {name: 'component/text-demo', title: 'Text'},
+                {name: 'cyyr://component/text-demo', title: 'Text'},
                 {name: 'component/image-demo', title: 'Image'},
                 {name: 'component/scroller-demo', title: 'Scroller'},
                 {name: 'component/list/list-basic', title: 'List (Basic)'},

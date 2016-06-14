@@ -9,6 +9,7 @@
 
 <script>
     require('weex-components');
+
     module.exports = {
         // 定义了数据的格式
         // dir
