@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+// 设置IP
 #define CURRENT_IP @"your computer device ip"
 
 #if TARGET_IPHONE_SIMULATOR
