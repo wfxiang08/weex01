@@ -52,6 +52,7 @@
 // 这是什么东西呢?
 -(void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler
 {
+    // ShortcutItem如何配置呢？
     if ([shortcutItem.type isEqualToString:QRSCAN]) {
         WXScannerVC * scanViewController = [[WXScannerVC alloc] init];
         [(UINavigationController*)self.window.rootViewController pushViewController:scanViewController animated:YES];
@@ -63,6 +64,7 @@
     
 #ifdef UITEST
 #if !TARGET_IPHONE_SIMULATOR
+    // 后台情况下该做什么事情呢?
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     setenv("GCOV_PREFIX", [documentsDirectory cStringUsingEncoding:NSUTF8StringEncoding], 1);

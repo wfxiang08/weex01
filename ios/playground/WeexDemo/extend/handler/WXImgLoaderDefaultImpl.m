@@ -35,14 +35,21 @@
 #pragma mark -
 #pragma mark WXImgLoaderProtocol
 
-- (id<WXImageOperationProtocol>)downloadImageWithURL:(NSString *)url imageFrame:(CGRect)imageFrame userInfo:(NSDictionary *)userInfo completed:(void(^)(UIImage *image,  NSError *error, BOOL finished))completedBlock
+- (id<WXImageOperationProtocol>)downloadImageWithURL:(NSString *)url
+                                          imageFrame:(CGRect)imageFrame
+                                            userInfo:(NSDictionary *)userInfo
+                                           completed:(void(^)(UIImage *image,  NSError *error, BOOL finished))completedBlock
 {
+    // 协议默认采用: http协议
     if ([url hasPrefix:@"//"]) {
         url = [@"http:" stringByAppendingString:url];
     }
+    
+    // 通过SDWebImageManager来下载图片
     return (id<WXImageOperationProtocol>)[[SDWebImageManager sharedManager] downloadImageWithURL:[NSURL URLWithString:url] options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize) {
         
     } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+        // 图片下载完毕，回调: callback
         if (completedBlock) {
             completedBlock(image, error, finished);
         }

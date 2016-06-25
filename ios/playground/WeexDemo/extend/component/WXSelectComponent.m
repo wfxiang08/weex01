@@ -28,6 +28,7 @@
         _tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(popupPicker)];
         _tap.delegate = self;
         
+        // Native和JS如何交换数据呢?
         if (attributes[@"options"]) {
             _options = [attributes[@"options"] componentsSeparatedByString:@","];
         }

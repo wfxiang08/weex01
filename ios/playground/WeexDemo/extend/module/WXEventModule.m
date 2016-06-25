@@ -14,11 +14,20 @@
 
 @synthesize weexInstance;
 
+// 导出方法:
 WX_EXPORT_METHOD(@selector(openURL:))
 
 - (void)openURL:(NSString *)url
 {
     NSString *newURL = url;
+    
+    // 如何理解URL呢?
+    // 1. 相对的URL, 相对: scriptURL而言
+    // 2. 绝对的URL
+    //            http://
+    //            https://
+    //            //
+    
     if ([url hasPrefix:@"//"]) {
         newURL = [NSString stringWithFormat:@"http:%@", url];
     } else if (![url hasPrefix:@"http"]) {
@@ -26,6 +35,7 @@ WX_EXPORT_METHOD(@selector(openURL:))
         newURL = [NSURL URLWithString:url relativeToURL:weexInstance.scriptURL].absoluteString;
     }
     
+    // 将URL传递给DemoViewController
     UIViewController *controller = [[WXDemoViewController alloc] init];
     ((WXDemoViewController *)controller).url = [NSURL URLWithString:newURL];
     

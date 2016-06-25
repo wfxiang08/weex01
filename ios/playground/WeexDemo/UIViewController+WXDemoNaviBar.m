@@ -13,6 +13,8 @@
 @implementation UIViewController (WXDemoNaviBar)
 
 - (void)setupNaviBar {
+    // 1. PanGestureRecognizer的设置
+    // http://www.cnblogs.com/YouXianMing/p/3724778.html
     UIScreenEdgePanGestureRecognizer *edgePanGestureRecognizer = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(edgePanGesture:)];
     edgePanGestureRecognizer.delegate = self;
     edgePanGestureRecognizer.edges = UIRectEdgeLeft;
@@ -35,6 +37,7 @@
     
     if (self.navigationItem.leftBarButtonItem) return;
     
+    // 返回，或者设置leftButtonItem
     UIBarButtonItem *leftItem;
     if(![[self.navigationController.viewControllers objectAtIndex:0] isEqual:self]) {
         leftItem = [self backButtonItem];
@@ -92,6 +95,7 @@
 #pragma mark - UIBarButtonItem actions
 
 - (void)scanQR:(id)sender {
+    // 如何扫描?
     WXScannerVC * scanViewController = [[WXScannerVC alloc] init];
     [self.navigationController pushViewController:scanViewController animated:NO];
 }

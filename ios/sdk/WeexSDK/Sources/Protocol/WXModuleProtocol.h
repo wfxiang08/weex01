@@ -10,6 +10,7 @@
 #import "WXDefine.h"
 #import "WXSDKInstance.h"
 
+// 似乎没有强制要求什么, 因此它的实现有时候基本上啥都没有做
 @protocol WXModuleProtocol <NSObject>
 
 /**
@@ -20,7 +21,8 @@ typedef void (^WXModuleCallback)(id result);
 /**
  *  @abstract export public method
  */
-
+// + (NSString *) wx_export_method_100 {
+// }
 #define WX_EXPORT_METHOD(method) \
 + (NSString *)WX_CONCAT_WRAPPER(wx_export_method_, __LINE__) { \
     return NSStringFromSelector(method); \

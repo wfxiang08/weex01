@@ -47,8 +47,10 @@
     [self setupRightBarItem];
     self.view.backgroundColor = [UIColor whiteColor];
     
+    // 44 + 20
     _weexHeight = self.view.frame.size.height - 64;
     
+    // render如何处理呢?
     [self render];
 }
 
@@ -82,6 +84,8 @@
 - (void)render
 {
     CGFloat width = self.view.frame.size.width;
+    
+    // 重新初始化: WXSDKIntance
     [_instance destroyInstance];
     _instance = [[WXSDKInstance alloc] init];
     _instance.viewController = self;
