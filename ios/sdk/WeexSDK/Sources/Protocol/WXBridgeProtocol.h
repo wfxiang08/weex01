@@ -10,6 +10,12 @@
 
 typedef void (^WXJSCallNative)(NSString *instance, NSArray *tasks, NSString *callback);
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 实现:
+// WXJSCoreBridge
+// WXWebSocketBridge
+//
 @protocol WXBridgeProtocol <NSObject>
 
 @property (nonatomic, readonly) JSValue* exception;

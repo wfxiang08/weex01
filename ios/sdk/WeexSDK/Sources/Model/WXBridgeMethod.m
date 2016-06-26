@@ -14,6 +14,7 @@
 {
     self = [super init];
     if(self){
+        // Module/Method/Args
         _module = [data valueForKey:@"module"];
         _method = [data valueForKey:@"method"];
         _arguments = [data valueForKey:@"args"];
@@ -25,11 +26,13 @@
 {
     self = [self initWihData:data];
     if (self) {
+        // 对象
         _instance = instance;
     }
     return self;
 }
 
+// 将参数序列化
 - (NSDictionary *)dataDesc
 {
     NSString *module = _module ? : @"";

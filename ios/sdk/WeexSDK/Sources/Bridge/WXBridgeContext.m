@@ -44,6 +44,8 @@
     if (self) {
         _methodQueue = [NSMutableArray new];
         _frameworkLoadFinished = NO;
+        
+        // 发现JSError
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(jsError:) name:WX_JS_ERROR_NOTIFICATION_NAME object:nil];
     }
     return self;
@@ -73,20 +75,24 @@
 - (id<WXBridgeProtocol>)jsBridge
 {
     WXAssertBridgeThread();
-    
+    // 1. Bridge的class
     Class bridgeClass = _debugJS ? [WXWebSocketBridge class] : [WXJSCoreBridge class];
     
     if (_jsBridge && [_jsBridge isKindOfClass:bridgeClass]) {
         return _jsBridge;
     }
     
+    // JSBridge重建, 之间的methods删除，清除状态
     if (_jsBridge) {
         [_methodQueue removeAllObjects];
         _frameworkLoadFinished = NO;
     }
     
+    // 重建JSBridge
     _jsBridge = _debugJS ? self.socketBridge : [[WXJSCoreBridge alloc] init];
      __weak typeof(self) weakSelf = self;
+    
+    // 注册: Native Callback
     [_jsBridge registerCallNative:^(NSString *instance, NSArray *tasks, NSString *callback) {
         [weakSelf invokeNative:instance tasks:tasks callback:callback];
     }];
@@ -109,15 +115,17 @@
 {
     WXAssertBridgeThread();
     
-    if (_sendQueue) return _sendQueue;
-    
-    _sendQueue = [NSMutableDictionary dictionary];
-    
+    if (!_sendQueue) {
+        _sendQueue = [NSMutableDictionary dictionary];
+    }
     return _sendQueue;
 }
 
 #pragma mark JS Bridge Management
 
+//
+// tasks为list[完整的method]
+//
 - (void)invokeNative:(NSString *)instance tasks:(NSArray *)tasks callback:(NSString *)callback
 {
     WXAssertBridgeThread();
@@ -128,9 +136,13 @@
     }
     [WXSDKError monitorAlarm:YES errorCode:WX_ERR_JSFUNC_PARAM msg:@""];
     
+    // 1. 如何执行tasks?
     for (NSDictionary *task in tasks) {
+        // task数据欢迎成为: WXBridgeMethod
         WXBridgeMethod *method = [[WXBridgeMethod alloc] initWihData:task];
         method.instance = instance;
+        
+        // dispatchMethod
         [[WXSDKManager moduleMgr] dispatchMethod:method];
     }
     
@@ -140,12 +152,14 @@
         return;
     }
     
+    // 2. 构建: WXBridgeMethod --> sendQueue
     if (callback && ![callback isEqualToString:@"-1"]) {
         WXBridgeMethod *method = [self _methodWithCallback:callback];
         method.instance = instance;
         [sendQueue addObject:method];
     }
     
+    // 异步执行
     [self performSelector:@selector(_sendQueueLoop) withObject:nil];
 }
 
@@ -158,6 +172,7 @@
     WXAssertParam(instance);
     
     if (![self.insStack containsObject:instance]) {
+        
         if ([options[@"RENDER_IN_ORDER"] boolValue]) {
             [self.insStack addObject:instance];
         } else {
@@ -165,7 +180,9 @@
         }
     }
     
-    //create a sendQueue bind to the current instance
+    // create a sendQueue bind to the current instance
+    // 为: instance 添加 sendQueue
+    //
     NSMutableArray *sendQueue = [NSMutableArray array];
     [self.sendQueue setValue:sendQueue forKey:instance];
     
@@ -177,7 +194,9 @@
     }
     
     WXSDKInstance *sdkInstance = [WXSDKManager instanceForID:instance] ;
+    
     [WXBridgeContext _timeSince:^() {
+        // 调用: createInstance
         [self callJSMethod:@"createInstance" args:args];
         WXLogInfo(@"CreateInstance Finish...%f", -[sdkInstance.renderStartDate timeIntervalSinceNow]);
     } endBlock:^(NSTimeInterval time) {

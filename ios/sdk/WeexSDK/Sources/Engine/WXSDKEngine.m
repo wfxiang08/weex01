@@ -28,6 +28,7 @@
 // register some default modules when the engine initializes.
 + (void)_registerDefaultModules
 {
+    // 注册默认的Modules
     [self registerModule:@"dom" withClass:NSClassFromString(@"WXDomModule")];
     [self registerModule:@"navigator" withClass:NSClassFromString(@"WXNavigatorModule")];
     [self registerModule:@"stream" withClass:NSClassFromString(@"WXStreamModule")];
@@ -38,6 +39,9 @@
     [self registerModule:@"timer" withClass:NSClassFromString(@"WXTimerModule")];
 }
 
+//
+// 注册单个Module
+//
 + (void)registerModule:(NSString *)name withClass:(Class)clazz
 {
     WXAssert(name && clazz, @"Fail to register the module, please check if the parameters are correct ！");
@@ -53,6 +57,7 @@
 // register some default components when the engine initializes.
 + (void)_registerDefaultComponents
 {
+    // 注册: html标签
     [self registerComponent:@"container" withClass:NSClassFromString(@"WXDivComponent") withProperties:nil];
     [self registerComponent:@"div" withClass:NSClassFromString(@"WXComponent") withProperties:nil];
     [self registerComponent:@"text" withClass:NSClassFromString(@"WXTextComponent") withProperties:nil];
@@ -105,6 +110,8 @@
 // register some default handlers when the engine initializes.
 + (void)_registerDefaultHandlers
 {
+    // 注册网络协议
+    // 注册NavigationProtocol
     [self registerHandler:[WXNetworkDefaultImpl new] withProtocol:@protocol(WXNetworkProtocol)];
     [self registerHandler:[WXNavigationDefaultImpl new] withProtocol:@protocol(WXNavigationProtocol)];
 }
@@ -122,6 +129,8 @@
 {
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"main" ofType:@"js"];
     NSString *script = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+    
+    // 加载SDK环境
     [WXSDKEngine initSDKEnviroment:script];
     
 #if TARGET_OS_SIMULATOR

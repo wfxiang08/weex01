@@ -8,6 +8,9 @@
 
 #import "WXBridgeProtocol.h"
 
+//
+// 通过JSCore来实现Bridge
+//
 @interface WXJSCoreBridge : NSObject <WXBridgeProtocol>
 
 @end

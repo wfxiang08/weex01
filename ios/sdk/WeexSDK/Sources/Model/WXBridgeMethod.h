@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+//
+// 实现BridgeMethod的序列化，反序列化
+//
 @interface WXBridgeMethod : NSObject
 
 @property (nonatomic, strong) NSString  *instance;

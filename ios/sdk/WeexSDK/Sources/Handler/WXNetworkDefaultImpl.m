@@ -22,6 +22,7 @@
 
 @end
 
+// 全局唯一, 公用Session
 @implementation WXNetworkDefaultImpl
 {
     NSMutableDictionary *_callbacks;
@@ -39,6 +40,8 @@
     info.receiveDataCallback = receiveDataCallback;
     info.compeletionCallback = compeletionCallback;
     
+    // 创建一个Session, 大家共享
+    // XXX: Cookie
     if (!_session) {
         _session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]
                                                  delegate:self

@@ -18,6 +18,7 @@
 
 @interface WXJSCoreBridge ()
 
+// JSContext 中保存着Javascript
 @property (nonatomic, strong)  JSContext *jsContext;
 
 @end
@@ -29,15 +30,18 @@
     self = [super init];
     
     if(self){
+        // 注意: JSContext的使用
         _jsContext = [[JSContext alloc] init];
         
         __weak typeof(self) weakSelf = self;
         
+        // 获取环境变量
         NSDictionary *data = [WXUtility getEnvironment];
         _jsContext[@"WXEnvironment"] = data;
         
         _jsContext[@"setTimeout"] = ^(JSValue* function, JSValue* timeout) {
             [weakSelf performSelector: @selector(triggerTimeout:) withObject:^() {
+                // 在OC内部执行JS函数
                 [function callWithArguments:@[]];
             } afterDelay:[timeout toDouble] / 1000];
         };
@@ -55,6 +59,8 @@
                              };
             });
             
+            // nativeLog 如何调用呢?
+            // jsLog: xxxx xxxx xxx FLAG?
             NSMutableString *string = [NSMutableString string];
             [string appendString:@"jsLog: "];
             NSArray *args = [JSContext currentArguments];
@@ -73,6 +79,7 @@
             }];
         };
         
+        // 异常处理
         _jsContext.exceptionHandler = ^(JSContext *context, JSValue *exception){
             context.exception = exception;
             NSString *message = [NSString stringWithFormat:@"[%@:%@:%@] %@\n%@", exception[@"sourceURL"], exception[@"line"], exception[@"column"], exception, [exception[@"stack"] toObject]];
@@ -101,13 +108,17 @@
 
 - (void)registerCallNative:(WXJSCallNative)callNative
 {
+    // Adapter: 实现JS数据结构到Native数据结构的转换
     void (^callNativeBlock)(JSValue *, JSValue *, JSValue *) = ^(JSValue *instance, JSValue *tasks, JSValue *callback){
         NSString *instanceId = [instance toString];
         NSArray *tasksArray = [tasks toArray];
         NSString *callbackId = [callback toString];
         WXLogVerbose(@"Calling native... instance:%@, tasks:%@, callback:%@", instanceId, tasksArray, callbackId);
+        
+        
         callNative(instanceId, tasksArray, callbackId);
     };
+    
     
     _jsContext[@"callNative"] = callNativeBlock;
 }

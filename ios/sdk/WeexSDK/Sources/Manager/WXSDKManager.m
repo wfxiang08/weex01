@@ -9,6 +9,9 @@
 #import "WXSDKManager.h"
 #import "WXThreadSafeMutableDictionary.h"
 
+//
+// 全局唯一
+//
 @interface WXSDKManager ()
 
 @property (nonatomic, strong) WXBridgeManager *bridgeMgr;
@@ -21,8 +24,8 @@
 
 @implementation WXSDKManager
 
+// 单例模式:
 static WXSDKManager *_sharedInstance = nil;
-
 + (WXSDKManager *)sharedInstance
 {
     static dispatch_once_t onceToken;
@@ -35,6 +38,7 @@ static WXSDKManager *_sharedInstance = nil;
     return _sharedInstance;
 }
 
+// 返回: Bridge
 + (WXBridgeManager *)bridgeMgr
 {
     WXBridgeManager *bridgeMgr = [self sharedInstance].bridgeMgr;
@@ -45,6 +49,7 @@ static WXSDKManager *_sharedInstance = nil;
     return bridgeMgr;
 }
 
+// 返回ModuleMrg
 + (WXModuleManager *)moduleMgr
 {
     WXModuleManager *moduleMgr = [self sharedInstance].moduleMgr;
@@ -62,6 +67,7 @@ static WXSDKManager *_sharedInstance = nil;
 
 + (void)storeInstance:(WXSDKInstance *)instance forID:(NSString *)identifier
 {
+    // 在: WXSDKManager中存放: WXSDKInstance
     [[self sharedInstance].instanceDict setObject:instance forKey:identifier];
 }
 

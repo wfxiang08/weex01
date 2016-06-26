@@ -22,6 +22,8 @@
 
 + (instancetype)sharedInstance {
     static WXHandlerFactory* _sharedInstance = nil;
+    
+    // 初始化: _sharedInstance
     static dispatch_once_t oncePredicate;
     dispatch_once(&oncePredicate, ^{
         _sharedInstance = [[self alloc] init];
@@ -34,14 +36,16 @@
 {
     WXAssert(handler && protocol, @"Handler or protocol for registering can not be nil.");
     WXAssertProtocol(handler, protocol);
-        
+    
+    // protocol如何作为key呢?
+    // NSStringFromProtocol: 估计是签名变成NSString
     [[WXHandlerFactory sharedInstance].handlers setObject:handler forKey:NSStringFromProtocol(protocol)];
 }
 
 + (id)handlerForProtocol:(Protocol *)protocol
 {
     WXAssert(protocol, @"Can not find handler for a nil protocol");
-    
+    // 获取Handler
     id handler = [[WXHandlerFactory sharedInstance].handlers objectForKey:NSStringFromProtocol(protocol)];
     return handler;
 }

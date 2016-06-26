@@ -8,6 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+//
+// WXModuleFactory的作用:
+// 1. 注册Module
+//    ModuleName, ModuleClass -->
+//                                WXModuleConfig: name, class, method list
+// 2. 获取Module的Method List
+// 3. 获取moudle, method的Selector
+// 4. 获取module对应的class
+//
 @interface WXModuleFactory : NSObject
 
 /**

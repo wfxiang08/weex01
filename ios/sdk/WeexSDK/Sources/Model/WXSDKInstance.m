@@ -26,6 +26,7 @@ NSTimeInterval JSLibInitTime = 0;
 {
     id<WXNetworkProtocol> _networkHandler;
     
+    // 单例
     WXComponentManager *_componentManager;
 }
 
@@ -38,6 +39,9 @@ NSTimeInterval JSLibInitTime = 0;
 {
     self = [super init];
     if(self){
+        // instanceId如何控制? 递增， 是否会出现重复呢?
+        // 可能暂时不会遇到这个问题
+        // TODO:
         NSInteger instanceId = 0;
         @synchronized(self){
             static NSInteger __instance = 0;
@@ -46,6 +50,7 @@ NSTimeInterval JSLibInitTime = 0;
         }
         _instanceId = [NSString stringWithFormat:@"%ld", (long)instanceId];
 
+        // 将当前对象保存到: WXSDKManager中
         [WXSDKManager storeInstance:self forID:_instanceId];
         _frame = CGRectMake(NAN, NAN, NAN, NAN);
         
@@ -78,20 +83,28 @@ NSTimeInterval JSLibInitTime = 0;
         return;
     }
     
+    // 1. 如何render指定的URL呢?
     _scriptURL = url;
+    
+    // 2. 构建Options: bundleUrl
     NSMutableDictionary *newOptions = [options mutableCopy];
     newOptions[bundleUrlOptionKey] = url.absoluteString;
     
+    // 3. PageName的构建
     if (!self.pageName || [self.pageName isEqualToString:@""]) {
         self.pageName = url.absoluteString ? : @"";
     }
     
     __weak typeof(self) weakSelf = self;
     if ([url isFileURL]) {
+        // 本地文件
+        // dispatch_get_global_queue 和 main_queue有关系吗?
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            // 读取scripts的内容
             NSString *path = [url path];
             NSData *scriptData = [[NSFileManager defaultManager] contentsAtPath:path];
             NSString *script = [[NSString alloc] initWithData:scriptData encoding:NSUTF8StringEncoding];
+            
             if (!script) {
                 NSString *errorDesc = [NSString stringWithFormat:@"File read error at url: %@", url];
                 WXLogError(@"%@", errorDesc);
@@ -100,6 +113,8 @@ NSTimeInterval JSLibInitTime = 0;
                 }
                 return;
             }
+            
+            // 调用: renderView
             [weakSelf renderView:script options:newOptions data:data];
         });
     } else {
@@ -109,10 +124,12 @@ NSTimeInterval JSLibInitTime = 0;
         
         id<WXNetworkProtocol> networkHandler = [self networkHandler];
         
+        // 发送网络请求
         __block NSURLResponse *urlResponse;
         [networkHandler sendRequest:request
                    withSendingData:^(int64_t bytesSent, int64_t totalBytes) {}
                       withResponse:^(NSURLResponse *response) {
+                          // 记录URL Response
                           urlResponse = response;
                       }
                    withReceiveData:^(NSData *data) {}
@@ -131,9 +148,12 @@ NSTimeInterval JSLibInitTime = 0;
                }
                return ;
            }
-                   
+            
+            // UTF8格式的script
             NSString *script = [[NSString alloc] initWithData:totalData encoding:NSUTF8StringEncoding];
             weakSelf.networkTime = -[networkStart timeIntervalSinceNow];
+                       
+            // 正式Render代码内容
             [weakSelf renderView:script options:newOptions data:data];
         }];
     }
@@ -159,12 +179,14 @@ NSTimeInterval JSLibInitTime = 0;
         source = [WXDebugTool getReplacedBundleJS];
     }
     
+    // XXX: 重建RootView
     //TODO WXRootView
     self.rootView = [[WXView alloc] initWithFrame:self.frame];
     if(self.onCreate) {
         self.onCreate(self.rootView);
     }
     
+    // 这个createInstance和 self.rootView 有什么关系呢?
     [[WXSDKManager bridgeMgr] createInstance:self.instanceId template:source options:dictionary data:data];
 }
 
@@ -293,6 +315,7 @@ NSTimeInterval JSLibInitTime = 0;
 - (id<WXNetworkProtocol>)networkHandler
 {
     if (!_networkHandler) {
+        // 通过WXHandlerFactory实现代码的插件式管理
         _networkHandler = [WXHandlerFactory handlerForProtocol:@protocol(WXNetworkProtocol)];
     }
     

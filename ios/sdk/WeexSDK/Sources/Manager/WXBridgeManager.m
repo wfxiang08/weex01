@@ -10,9 +10,12 @@
 #import "WXBridgeContext.h"
 #import "WXLog.h"
 #import "WXAssert.h"
-
+//
+// WXBridgeManager全局只有一个实例，在单例 WXSDKManager 中存在
+//
 @interface WXBridgeManager ()
 
+// Context也是唯一的
 @property (nonatomic, strong) WXBridgeContext   *bridgeCtx;
 @property (nonatomic, strong) NSThread  *jsThread;
 @property (nonatomic, assign) BOOL  stopRunning;
@@ -27,11 +30,14 @@ static NSThread *WXBridgeThread;
 {
     self = [super init];
     if (self) {
+        
         _bridgeCtx = [[WXBridgeContext alloc] init];
         
+        // 线程
         _jsThread = [[NSThread alloc] initWithTarget:self selector:@selector(_runLoopThread) object:nil];
         [_jsThread setName: WX_BRIDGE_THREAD_NAME];
         
+        // 线程优先级设置
         if (WX_SYS_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")) {
             [_jsThread setQualityOfService:[[NSThread mainThread] qualityOfService]];
         } else {
@@ -154,6 +160,7 @@ do{\
     
     __weak typeof(self) weakSelf = self;
     WXPerformBlockOnBridgeThread(^(){
+        // 将Modules注册到Bridge中
         [weakSelf.bridgeCtx registerModules:modules];
     });
 }

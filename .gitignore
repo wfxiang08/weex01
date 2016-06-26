@@ -1,6 +1,8 @@
 # Created by IDE
 .idea/
 *.iml
+.gradle
+ios/playground/WeexDemo.xcworkspace
 
 # Created by Builder
 examples/build

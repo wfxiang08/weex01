@@ -36,8 +36,15 @@
     WXThreadSafeMutableArray *_events;
     
     WXThreadSafeMutableArray *_subcomponents;
+    
+    // DOM中的组件:
+    // super, subcomponents
     __weak WXComponent *_supercomponent;
+    
+    // 滚动?
     __weak id<WXScrollerProtocol> _ancestorScroller;
+    
+    // Instance(每个节目有一个独立的Instance)
     __weak WXSDKInstance *_weexInstance;
 }
 
@@ -122,14 +129,18 @@
     return _supercomponent;
 }
 
+//
+// 添加SubComponent
+//
 - (void)_insertSubcomponent:(WXComponent *)subcomponent atIndex:(NSInteger)index
 {
     WXAssert(subcomponent, @"The subcomponent to insert to %@ at index %d must not be nil", self, index);
     
+    // 设置DOM关系
     subcomponent->_supercomponent = self;
-    
     [_subcomponents insertObject:subcomponent atIndex:index];
     
+    // ComponentManager是放在WeexInstance中的
     if (subcomponent->_positionType == WXPositionTypeFixed) {
         [self.weexInstance.componentManager addFixedComponent:subcomponent];
         subcomponent->_isNeedJoinLayoutSystem = NO;

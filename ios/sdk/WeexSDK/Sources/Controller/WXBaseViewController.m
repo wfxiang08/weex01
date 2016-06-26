@@ -15,9 +15,10 @@
 
 @interface WXBaseViewController ()
 
-@property (nonatomic, strong) WXSDKInstance *instance;
-@property (nonatomic, strong) UIView *weexView;
-@property (nonatomic, strong) NSURL *sourceURL;
+@property (nonatomic, strong) WXSDKInstance *instance; // 实例
+@property (nonatomic, strong) NSURL *sourceURL;  // 代码
+
+@property (nonatomic, strong) UIView *weexView; // 对应的weexView
 
 @end
 
@@ -125,9 +126,12 @@
         return;
     }
 
+    // 如何Render呢?
+    // 1. 清楚之前的状态
     [_instance destroyInstance];
     _instance = [[WXSDKInstance alloc] init];
     _instance.frame = CGRectMake(0.0f, 0.0f, self.view.bounds.size.width, self.view.bounds.size.height);
+    
     _instance.pageObject = self;
     _instance.pageName = [sourceURL absoluteString];
     _instance.viewController = self;
@@ -140,10 +144,13 @@
     else {
         newURL = [NSString stringWithFormat:@"%@?random=%d", sourceURL.absoluteString, arc4random()];
     }
+    
+    // newURL sourceURL
     [_instance renderWithURL:[NSURL URLWithString:newURL] options:@{@"bundleUrl":sourceURL} data:nil];
     
     __weak typeof(self) weakSelf = self;
     _instance.onCreate = ^(UIView *view) {
+        // 创建好了之后返回: weexView
         [weakSelf.weexView removeFromSuperview];
         weakSelf.weexView = view;
         [weakSelf.view addSubview:weakSelf.weexView];

@@ -35,6 +35,8 @@
 - (void)setNeedsLayout
 {
     _isLayoutDirty = YES;
+    
+    // 如果自己Dirty了，那么所有的super都Dirty了
     WXComponent *supercomponent = [self supercomponent];
     if(supercomponent){
         [supercomponent setNeedsLayout];

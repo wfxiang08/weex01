@@ -30,6 +30,9 @@
 
 @end
 
+//
+// 某个Class，以及它内部可以导出的所有的方法
+//
 @implementation WXModuleConfig
 
 - (instancetype)init
@@ -52,15 +55,21 @@
     
     while (currentClass != [NSObject class]) {
         unsigned int methodCount = 0;
+        
+        // 1. 获取MethodList
         Method *methodList = class_copyMethodList(object_getClass(currentClass), &methodCount);
         for (unsigned int i = 0; i < methodCount; i++) {
+            // 1.1 获取MethodName
             NSString *selStr = [NSString stringWithCString:sel_getName(method_getName(methodList[i])) encoding:NSUTF8StringEncoding];
             
+            // 1.2 通过前缀来判断
             if (![selStr hasPrefix:@"wx_export_method_"]) continue;
             
+            // 1.3
             NSString *name = nil, *method = nil;
             SEL selector = NSSelectorFromString(selStr);
             if ([currentClass respondsToSelector:selector]) {
+                // wx_export_method_1102(clazz, selector) ---> 得到对应的method的名字
                 method = ((NSString* (*)(id, SEL))[currentClass methodForSelector:selector])(currentClass, selector);
             }
             
@@ -171,17 +180,23 @@ static WXModuleFactory *_sharedInstance = nil;
     WXAssert(name && clazz, @"Fail to register the module, please check if the parameters are correct ！");
     
     [_moduleLock lock];
+    // 如何注册一个模块呢?
     //allow to register module with the same name;
     WXModuleConfig *config = [[WXModuleConfig alloc] init];
     config.name = name;
     config.clazz = NSStringFromClass(clazz);
     [config registerModuleMethods];
+    
+    // 结果保存到: _moduleMap中
     [_moduleMap setValue:config forKey:name];
     [_moduleLock unlock];
     
     return name;
 }
 
+//
+// 返回只有一个 key 的dict, value为method list
+//
 - (NSMutableDictionary *)_moduleMethodMapsWithName:(NSString *)name
 {
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
